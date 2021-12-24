@@ -52,6 +52,6 @@ router.get("/admin/getUser", getUser);
 
 router.get("/admin/getRole", getRole);
 
-router.get("/admin/postRole", postRole);
+router.post("/admin/postRole", postRole);
 
 module.exports = router;

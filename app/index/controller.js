@@ -79,6 +79,7 @@ module.exports = {
           // lakukan validasi
           const schema = {
             nama: "string|empty:false",
+            email: "string|email:true",
             status: "string|empty:false",
             nik: "string|min:16",
             tempat_lahir: "string|empty:false",
@@ -131,12 +132,14 @@ module.exports = {
           } else {
             const data = await Ortu.create({
               nama: req.body.nama,
+              email: req.body.email,
               status: req.body.status,
               nik: req.body.nik,
               tempat_lahir: req.body.tempat_lahir,
               tanggal_lahir: req.body.tanggal_lahir,
               username: req.body.username,
               no_hp: req.body.no_hp,
+              no_hp_alternatif: req.body.no_hp_alternatif || null,  // menambahkan no_hp_alternatif jika ada
               alamat: req.body.alamat,
               pekerjaan: req.body.pekerjaan,
               password: await bcrypt.hash(password, 10),
@@ -148,6 +151,10 @@ module.exports = {
 
             // mapping
             const dataAnak = req.body.anak.map((ank) => {
+              // Cek kolom avatar pada anak
+              if (!ank.avatar) return res.status(400).json({
+                statusCode: 400, err: 'BAD REQUEST', message: 'Avatar anak diperlukan'
+              })
               const avatarAnak = base64(
                 ank.avatar,
                 "./upload/img-anak",
@@ -196,7 +203,6 @@ module.exports = {
   login: async (req, res) => {
     try {
       // jika berhasil
-
       // mencari user berdasrakan email
       const data = await Ortu.findOne({
         where: {
@@ -238,25 +244,13 @@ module.exports = {
           // jika password benar
 
           // generate token
-          const token = jwt.sign(
-            {
-              id: data.id,
-            },
-            JWT_SECRET_KEY,
-            {
-              expiresIn: "1h",
-            }
-          );
+          const token = jwt.sign({ id: data.id }, JWT_SECRET_KEY, { expiresIn: "1h" });
 
           // response berhasil
           res
             .status(200)
-            .set({
-              "x-auth-token": token,
-            })
-            .json({
-              message: "Berhasil login",
-            });
+            .set({ "x-auth-token": token })
+            .json({ message: "Berhasil login" });
         }
       }
     } catch (err) {
@@ -319,6 +313,7 @@ module.exports = {
       if (!req.body.avatar) {
         // insert data ke database
         await data.update({
+          email: req.body.email,
           nama: req.body.nama,
           nik: req.body.nik,
           tempat_lahir: req.body.tempat_lahir,
@@ -330,12 +325,13 @@ module.exports = {
           no_hp: req.body.no_hp,
           no_hp_alternatif: req.body.no_hp_alternatif,
           username: req.body.username,
-          password: await bcrypt.hash(req.body.password, 10),
+          // password: await bcrypt.hash(req.body.password, 10),
           avatar: data.avatar,
         });
       } else {
         // insert data ke database
         await data.update({
+          email: req.body.email,
           nama: req.body.nama,
           nik: req.body.nik,
           tempat_lahir: req.body.tempat_lahir,
@@ -347,7 +343,7 @@ module.exports = {
           no_hp: req.body.no_hp,
           no_hp_alternatif: req.body.no_hp_alternatif,
           username: req.body.username,
-          password: await bcrypt.hash(req.body.password, 10),
+          // password: await bcrypt.hash(req.body.password, 10),
           avatar: base64(req.body.avatar, "./upload/img-ortu", "ortu"),
         });
       }
