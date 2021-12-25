@@ -14,8 +14,8 @@ const {
 const {
   getUser,
   getRole,
-  postRole
-  
+  postRole,
+  ...admin
 } = require("./adminController");
 
 const router = express.Router();
@@ -49,6 +49,7 @@ router.get("/anak/:id", auth, detail_anak);
 router.delete("/delete-anak/:id", auth, delete_anak);
 
 router.get("/admin/getUser", getUser);
+router.delete('/admin/users/:id', admin.deleteUser)
 
 router.get("/admin/getRole", getRole);
 

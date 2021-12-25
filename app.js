@@ -15,7 +15,7 @@ app.use(cors({
     exposedHeaders: ['x-auth-token', 'Content-Type']
 }))  // gunakan cors
 app.use(logger("dev"));
-app.use(bodyParser({ limit: '20mb' }))  // tambah ukuran payload yg dapat diterima
+app.use(bodyParser({ limit: '200mb' }))  // tambah ukuran payload yg dapat diterima
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
